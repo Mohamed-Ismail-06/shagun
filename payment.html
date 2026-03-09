@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shagun Payment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #6A5ACD 0%, #8B85FF 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #6A5ACD;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: #6A5ACD;
+        }
+        .amount-container {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .currency {
+            background: #f5f5f5;
+            padding: 14px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #6A5ACD;
+        }
+        .amount-container input {
+            border: none;
+            flex: 1;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .quick-amounts {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .quick-amounts button {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #6A5ACD;
+            background: white;
+            color: #6A5ACD;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quick-amounts button:hover,
+        .quick-amounts button.active {
+            background: #6A5ACD;
+            color: white;
+        }
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .pay-btn:hover {
+            background: #45a049;
+        }
+        .pay-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .upi-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .upi-info small {
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .upi-info strong {
+            color: #333;
+            font-size: 14px;
+        }
+        .note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Shagun Payment</h1>
+            <p id="weddingName">Wedding Event</p>
+        </div>
+
+        <div class="form-group">
+            <label>What is your relation?</label>
+            <select id="relation">
+                <option value="">Select relation</option>
+                <option value="Friend">Friend</option>
+                <option value="Relative">Relative</option>
+                <option value="Colleague">Colleague</option>
+                <option value="Family">Family</option>
+                <option value="Neighbor">Neighbor</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Enter Amount (₹)</label>
+            <div class="amount-container">
+                <span class="currency">₹</span>
+                <input type="number" id="amount" placeholder="Enter amount" inputmode="numeric">
+            </div>
+
+        <div class="quick-amounts">
+            <button onclick="setAmount(501)">₹501</button>
+            <button onclick="setAmount(1001)">₹1001</button>
+            <button onclick="setAmount(2001)">₹2001</button>
+            <button onclick="setAmount(5001)">₹5001</button>
+        </div>
+
+        <button class="pay-btn" id="payBtn" onclick="processPayment()">
+            💰 Pay via UPI
+        </button>
+
+        <div class="upi-info">
+            <small>Pay to UPI ID:</small>
+            <strong id="upiId">Loading...</strong>
+        </div>
+
+        <p class="note">You will be redirected to UPI app to complete payment</p>
+    </div>
+
+    <script>
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteCode = urlParams.get('code') || '';
+        const upiId = urlParams.get('upi') || '';
+        const weddingName = decodeURIComponent(urlParams.get('wedding') || 'Wedding Event');
+
+        // Display info
+        document.getElementById('weddingName').textContent = weddingName;
+        document.getElementById('upiId').textContent = upiId || 'Not available';
+
+        let selectedAmount = '';
+
+        function setAmount(amount) {
+            document.getElementById('amount').value = amount;
+            selectedAmount = amount;
+            
+            // Update button states
+            document.querySelectorAll('.quick-amounts button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(amount)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function processPayment() {
+            const relation = document.getElementById('relation').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!relation) {
+                alert('Please select your relation');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            if (!upiId) {
+                alert('UPI ID not found. Please try again.');
+                return;
+            }
+
+            // Create UPI payment link with the entered amount
+            const noteText = `Shagun for ${weddingName} - ${relation}`;
+            const upiPaymentLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Shagun Payment')}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(noteText)}&cu=INR`;
+
+            // Try to open UPI app
+            window.location.href = upiPaymentLink;
+        }
+    </script>
+</body>
+</html>
