@@ -112,6 +112,15 @@
     }
 
     function openUpiApp(app) {
+      if (!upiId) {
+        setMsg("UPI ID missing in QR link.");
+        return;
+      }
+      if (upiId.toLowerCase().includes("@razorpay")) {
+        setMsg("This QR has a test UPI handle. Regenerate QR with your real receiver UPI ID.");
+        return;
+      }
+
       const upiLink = buildUpiLink();
       if (app === "default") {
         window.location.href = upiLink;
@@ -130,7 +139,8 @@
         return;
       }
 
-      const intentPayload = encodeURIComponent(upiLink.replace("upi://", ""));
+      // Keep payload raw (already URL-encoded in query params) for Android intent parsing.
+      const intentPayload = upiLink.replace("upi://", "");
       const intentUrl = `intent://${intentPayload}#Intent;scheme=upi;package=${pkg};end`;
       window.location.href = intentUrl;
     }
