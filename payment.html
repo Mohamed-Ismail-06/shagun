@@ -1,310 +1,188 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shagun Payment</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #6A5ACD 0%, #8B85FF 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #6A5ACD;
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        .header p {
-            color: #666;
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            border-color: #6A5ACD;
-        }
-        .amount-container {
-            display: flex;
-            align-items: center;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .currency {
-            background: #f5f5f5;
-            padding: 14px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #6A5ACD;
-        }
-        .amount-container input {
-            border: none;
-            flex: 1;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .quick-amounts {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .quick-amounts button {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #6A5ACD;
-            background: white;
-            color: #6A5ACD;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .quick-amounts button:hover,
-        .quick-amounts button.active {
-            background: #6A5ACD;
-            color: white;
-        }
-        .pay-btn {
-            width: 100%;
-            padding: 16px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .pay-btn:hover {
-            background: #45a049;
-        }
-        .pay-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .upi-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .upi-info small {
-            color: #666;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .upi-info strong {
-            color: #333;
-            font-size: 14px;
-        }
-        .note {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 12px;
-            color: #999;
-        }
-        .success-message {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            background: #d4edda;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .success-message h3 {
-            color: #155724;
-            margin-bottom: 10px;
-        }
-        .success-message p {
-            color: #155724;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shagun Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { min-height: 100vh; background: linear-gradient(140deg, #5f57c8, #7a74e6); display: grid; place-items: center; padding: 16px; }
+    .card { width: 100%; max-width: 430px; background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 16px 60px rgba(0,0,0,.24); }
+    h1 { color: #5f57c8; margin-bottom: 8px; font-size: 24px; }
+    .sub { color: #555; margin-bottom: 18px; font-size: 14px; }
+    .group { margin-bottom: 14px; }
+    label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #222; }
+    input { width: 100%; border: 1px solid #d7d8e6; border-radius: 10px; padding: 12px; font-size: 15px; }
+    .amount-row { display: flex; gap: 8px; margin-top: 10px; margin-bottom: 14px; }
+    .pill { border: 1px solid #5f57c8; color: #5f57c8; background: #fff; border-radius: 999px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+    .pay-btn { width: 100%; background: #2f9e44; color: #fff; border: 0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .pay-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    .fallback-btn { width: 100%; margin-top: 10px; background: #fff; color: #5f57c8; border: 1px solid #5f57c8; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .msg { margin-top: 14px; font-size: 13px; }
+    .ok { color: #166534; }
+    .err { color: #b91c1c; }
+    .hint { margin-top: 8px; color: #6b7280; font-size: 12px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 Shagun Payment</h1>
-            <p id="weddingName">Wedding Event</p>
-        </div>
+  <div class="card">
+    <h1>Shagun Payment</h1>
+    <div class="sub" id="weddingName">Wedding Event</div>
 
-        <div class="form-group">
-            <label>Your Name</label>
-            <input type="text" id="guestName" placeholder="Enter your name">
-        </div>
+    <div class="group">
+      <label for="guestName">Your Name</label>
+      <input id="guestName" type="text" placeholder="Enter your name">
+    </div>
 
-        <div class="form-group">
-            <label>Relation with the Couple</label>
-            <input type="text" id="relation" placeholder="e.g., Friend, Relative, Colleague">
-        </div>
+    <div class="group">
+      <label for="relation">Relationship</label>
+      <input id="relation" type="text" placeholder="Friend, Relative, Colleague...">
+    </div>
 
-        <div class="form-group">
-            <label>Enter Amount (₹)</label>
-            <div class="amount-container">
-                <span class="currency">₹</span>
-                <input type="number" id="amount" placeholder="Enter amount" inputmode="numeric">
-            </div>
+    <div class="group">
+      <label for="amount">Amount (INR)</label>
+      <input id="amount" type="number" min="1" step="1" placeholder="Enter amount">
+    </div>
 
-        <div class="quick-amounts">
-            <button onclick="setAmount(501)">₹501</button>
-            <button onclick="setAmount(1001)">₹1001</button>
-            <button onclick="setAmount(2001)">₹2001</button>
-            <button onclick="setAmount(5001)">₹5001</button>
-        </div>
+    <div class="amount-row">
+      <button class="pill" onclick="setAmount(501)">501</button>
+      <button class="pill" onclick="setAmount(1001)">1001</button>
+      <button class="pill" onclick="setAmount(2001)">2001</button>
+      <button class="pill" onclick="setAmount(5001)">5001</button>
+    </div>
 
-        <button class="pay-btn" id="payBtn" onclick="processPayment()">
-            💰 Pay via UPI
-        </button>
+    <button class="pay-btn" id="payBtn" onclick="startPayment()">Pay with Razorpay</button>
+    <button class="fallback-btn" id="upiBtn" onclick="payViaUpiFallback()">Pay via UPI (Fallback)</button>
+    <div class="hint">Use fallback only if Razorpay checkout fails to open.</div>
+    <div class="msg" id="msg"></div>
+  </div>
 
-        <div class="upi-info">
-            <small>Pay to UPI ID:</small>
-            <strong id="upiId">Loading...</strong>
-        </div>
+  <script>
+    const url = new URLSearchParams(window.location.search);
+    const inviteCode = url.get("code") || "";
+    const upiId = url.get("upi") || "";
+    const weddingName = decodeURIComponent(url.get("wedding") || "Wedding Event");
+    document.getElementById("weddingName").textContent = weddingName;
 
-        <p class="note">You will be redirected to UPI app to complete payment</p>
+    const backendUrl = "https://shagun-backend-qm4d.onrender.com";
 
-        <div class="success-message" id="successMessage">
-            <h3>✅ Payment Recorded!</h3>
-            <p>Thank you for your generous contribution!</p>
-        </div>
+    function setAmount(value) {
+      document.getElementById("amount").value = String(value);
+    }
 
-    <script>
-        // Get parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const inviteCode = urlParams.get('code') || '';
-        const upiId = urlParams.get('upi') || '';
-        const weddingName = decodeURIComponent(urlParams.get('wedding') || 'Wedding Event');
+    function setMsg(text, ok = false) {
+      const el = document.getElementById("msg");
+      el.textContent = text;
+      el.className = `msg ${ok ? "ok" : "err"}`;
+    }
 
-        // Display info
-        document.getElementById('weddingName').textContent = weddingName;
-        document.getElementById('upiId').textContent = upiId || 'Not available';
+    function payViaUpiFallback() {
+      const guestName = document.getElementById("guestName").value.trim();
+      const relation = document.getElementById("relation").value.trim();
+      const amount = Number(document.getElementById("amount").value);
 
-        let selectedAmount = '';
+      if (!upiId) return setMsg("UPI ID missing in QR link.");
+      if (!inviteCode) return setMsg("Invite code missing in QR link.");
+      if (!guestName) return setMsg("Please enter your name.");
+      if (!relation) return setMsg("Please enter relationship.");
+      if (!amount || amount <= 0) return setMsg("Please enter a valid amount.");
 
-        function setAmount(amount) {
-            document.getElementById('amount').value = amount;
-            selectedAmount = amount;
-            
-            // Update button states
-            document.querySelectorAll('.quick-amounts button').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.includes(amount)) {
-                    btn.classList.add('active');
-                }
-            });
+      const note = `Shagun for ${weddingName} - ${relation}`;
+      const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(
+        "Shagun Payment"
+      )}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}&cu=INR`;
+      window.location.href = upiLink;
+    }
+
+    async function startPayment() {
+      const payBtn = document.getElementById("payBtn");
+      const guestName = document.getElementById("guestName").value.trim();
+      const relation = document.getElementById("relation").value.trim();
+      const amount = Number(document.getElementById("amount").value);
+
+      if (!inviteCode) return setMsg("Invite code missing in QR link.");
+      if (!guestName) return setMsg("Please enter your name.");
+      if (!relation) return setMsg("Please enter relationship.");
+      if (!amount || amount <= 0) return setMsg("Please enter a valid amount.");
+
+      payBtn.disabled = true;
+      payBtn.textContent = "Preparing payment...";
+      setMsg("");
+
+      try {
+        const orderRes = await fetch(`${backendUrl}/api/payments/create-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inviteCode, guestName, relation, amount, weddingName }),
+        });
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData?.orderId || !orderData?.keyId) {
+          throw new Error(orderData?.message || "Could not create Razorpay order.");
         }
 
-        async function processPayment() {
-            const guestName = document.getElementById('guestName').value.trim();
-            const relation = document.getElementById('relation').value.trim();
-            const amount = document.getElementById('amount').value;
-
-            if (!guestName) {
-                alert('Please enter your name');
-                return;
-            }
-
-            if (!relation) {
-                alert('Please enter your relation with the couple');
-                return;
-            }
-
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
-                return;
-            }
-
-            if (!upiId) {
-                alert('UPI ID not found. Please try again.');
-                return;
-            }
-
-            // Disable button to prevent double click
-            document.getElementById('payBtn').disabled = true;
-            document.getElementById('payBtn').textContent = 'Processing...';
-
-            // Create UPI payment link with the entered amount
-            const noteText = `Shagun for ${weddingName} - ${relation}`;
-            const upiPaymentLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Shagun Payment')}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(noteText)}&cu=INR`;
-
+        const options = {
+          key: orderData.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency || "INR",
+          name: "Shagun Ceremony",
+          description: `Shagun for ${weddingName}`,
+          order_id: orderData.orderId,
+          prefill: { name: guestName },
+          notes: { inviteCode, relation, weddingName },
+          theme: { color: "#5f57c8" },
+          handler: async function (response) {
             try {
-                // Save payment record to database
-                const backendUrl = 'https://shagun-backend-qm4d.onrender.com';
-                
-                await fetch(`${backendUrl}/api/payments/record`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        inviteCode: inviteCode,
-                        guestName: guestName,
-                        relation: relation,
-                        amount: parseInt(amount),
-                        upiId: upiId,
-                        weddingName: weddingName,
-                        paymentStatus: 'pending'
-                    })
-                }).catch(err => {
-                    console.log('Could not connect to backend, proceeding with payment anyway');
-                });
-
-                // Open UPI app
-                window.location.href = upiPaymentLink;
-
-                // Show success message after a delay (assuming payment will be made)
-                setTimeout(() => {
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('payBtn').textContent = 'Payment Complete!';
-                }, 2000);
-
-            } catch (error) {
-                console.error('Error:', error);
-                // Try to open UPI anyway
-                window.location.href = upiPaymentLink;
+              const verifyRes = await fetch(`${backendUrl}/api/payments/verify`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  inviteCode,
+                  guestName,
+                  relation,
+                  amount,
+                  weddingName,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              if (!verifyRes.ok || !verifyData?.success) {
+                throw new Error(verifyData?.message || "Payment verification failed.");
+              }
+              setMsg("Payment successful. Thank you for your contribution!", true);
+              payBtn.textContent = "Payment Completed";
+            } catch (err) {
+              setMsg(err.message || "Payment done but verification failed. Please contact host.");
+              payBtn.disabled = false;
+              payBtn.textContent = "Pay with Razorpay";
             }
-        }
-    </script>
+          },
+          modal: {
+            ondismiss: function () {
+              payBtn.disabled = false;
+              payBtn.textContent = "Pay with Razorpay";
+            },
+          },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", function (response) {
+          const reason = response?.error?.description || "Payment failed.";
+          setMsg(reason);
+          payBtn.disabled = false;
+          payBtn.textContent = "Pay with Razorpay";
+        });
+        rzp.open();
+        payBtn.textContent = "Waiting for payment...";
+      } catch (error) {
+        const reason = error.message || "Unable to start payment.";
+        setMsg(`${reason} You can use 'Pay via UPI (Fallback)'.`);
+        payBtn.disabled = false;
+        payBtn.textContent = "Pay with Razorpay";
+      }
+    }
+  </script>
 </body>
 </html>
