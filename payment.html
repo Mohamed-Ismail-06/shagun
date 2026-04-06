@@ -23,6 +23,9 @@
     .ok { color: #166534; }
     .err { color: #b91c1c; }
     .hint { margin-top: 8px; color: #6b7280; font-size: 12px; }
+    .apps { margin-top: 12px; display: none; gap: 8px; flex-wrap: wrap; }
+    .app-btn { border: 1px solid #d1d5db; background: #fff; border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+    .app-btn.primary { border-color: #5f57c8; color: #5f57c8; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -55,6 +58,13 @@
     <button class="pay-btn" id="payBtn" onclick="startPayment()">Pay with Razorpay</button>
     <button class="fallback-btn" id="upiBtn" onclick="payViaUpiFallback()">Pay via UPI (Fallback)</button>
     <div class="hint">Use fallback only if Razorpay checkout fails to open.</div>
+    <div class="apps" id="apps">
+      <button class="app-btn primary" onclick="openUpiApp('default')">Default UPI App</button>
+      <button class="app-btn" onclick="openUpiApp('gpay')">Google Pay</button>
+      <button class="app-btn" onclick="openUpiApp('phonepe')">PhonePe</button>
+      <button class="app-btn" onclick="openUpiApp('paytm')">Paytm</button>
+      <button class="app-btn" onclick="openUpiApp('bhim')">BHIM</button>
+    </div>
     <div class="msg" id="msg"></div>
   </div>
 
@@ -88,11 +98,41 @@
       if (!relation) return setMsg("Please enter relationship.");
       if (!amount || amount <= 0) return setMsg("Please enter a valid amount.");
 
+      document.getElementById("apps").style.display = "flex";
+      setMsg("Select a UPI app below.");
+    }
+
+    function buildUpiLink() {
+      const relation = document.getElementById("relation").value.trim();
+      const amount = Number(document.getElementById("amount").value);
       const note = `Shagun for ${weddingName} - ${relation}`;
-      const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(
+      return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(
         "Shagun Payment"
       )}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}&cu=INR`;
-      window.location.href = upiLink;
+    }
+
+    function openUpiApp(app) {
+      const upiLink = buildUpiLink();
+      if (app === "default") {
+        window.location.href = upiLink;
+        return;
+      }
+
+      const packageMap = {
+        gpay: "com.google.android.apps.nbu.paisa.user",
+        phonepe: "com.phonepe.app",
+        paytm: "net.one97.paytm",
+        bhim: "in.org.npci.upiapp",
+      };
+      const pkg = packageMap[app];
+      if (!pkg) {
+        window.location.href = upiLink;
+        return;
+      }
+
+      const intentPayload = encodeURIComponent(upiLink.replace("upi://", ""));
+      const intentUrl = `intent://${intentPayload}#Intent;scheme=upi;package=${pkg};end`;
+      window.location.href = intentUrl;
     }
 
     async function startPayment() {
